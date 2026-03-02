@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useDemand } from "../context/DemandContext";
 import LiveMap from "../components/LiveMap";
 
+// ✅ ADD THESE TWO IMPORTS
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+
 const DriverDashboard = () => {
   const { routes, setEvLocation } = useDemand();
   const [watchId, setWatchId] = useState(null);
@@ -27,11 +31,21 @@ const DriverDashboard = () => {
     }
 
     const id = navigator.geolocation.watchPosition(
-      (position) => {
-        setEvLocation({
+      async (position) => {
+        const locationData = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-        });
+        };
+
+        // ✅ Keep your existing context update
+        setEvLocation(locationData);
+
+        // 🔥 NEW: Save to Firebase (for cross-device sync)
+        try {
+          await setDoc(doc(db, "live", "ev1"), locationData);
+        } catch (err) {
+          console.error("Error updating Firebase:", err);
+        }
       },
       (error) => {
         alert("Unable to fetch location");
