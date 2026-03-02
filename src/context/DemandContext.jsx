@@ -4,10 +4,9 @@ const DemandContext = createContext();
 
 export const DemandProvider = ({ children }) => {
   const [routes, setRoutes] = useState({});
-  const [evLocation, setEvLocation] = useState({
-    lat: 13.0827,
-    lng: 80.2707,
-  }); // default location
+
+  // ✅ Start as null (important for realtime sync)
+  const [evLocation, setEvLocation] = useState(null);
 
   const voteRoute = (from, to) => {
     const key = `${from} → ${to}`;
