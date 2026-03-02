@@ -1,96 +1,67 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { auth } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "firebase/auth";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // ✅ Load registered users from localStorage
-  const [users, setUsers] = useState(() => {
-    const storedUsers = localStorage.getItem("users");
-    return storedUsers ? JSON.parse(storedUsers) : [];
-  });
-
-  // ✅ Persist logged-in user
-  const [currentUser, setCurrentUser] = useState(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-
-  // =========================
-  // ✅ REGISTER FUNCTION
-  // =========================
-  const register = (email, password) => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPassword = password.trim();
-
-    // Check if user already exists
-    const userExists = users.find(
-      (u) => u.email === cleanEmail
-    );
-
-    if (userExists) {
-      return false; // already registered
-    }
-
-    const updatedUsers = [
-      ...users,
-      { email: cleanEmail, password: cleanPassword }
-    ];
-
-    setUsers(updatedUsers);
-
-    // Save permanently
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    return true;
-  };
-
-  // =========================
-  // ✅ LOGIN FUNCTION
-  // =========================
-  const login = (email, password) => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPassword = password.trim();
-
-    // Always read fresh from localStorage
-    const storedUsers =
-      JSON.parse(localStorage.getItem("users")) || [];
-
-    const user = storedUsers.find(
-      (u) =>
-        u.email === cleanEmail &&
-        u.password === cleanPassword
-    );
-
-    if (user) {
+  // Keep user logged in after refresh
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      return true;
-    }
+    });
 
-    return false;
+    return unsubscribe;
+  }, []);
+
+  // LOGIN
+  const login = async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   };
 
-  // =========================
-  // ✅ LOGOUT FUNCTION
-  // =========================
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem("currentUser");
+  // REGISTER
+  const register = async (email, password) => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
+
+  // LOGOUT
+  const logout = async () => {
+    await signOut(auth);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        register,
-        login,
-        logout,
         currentUser,
+        login,
+        register,
+        logout
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}

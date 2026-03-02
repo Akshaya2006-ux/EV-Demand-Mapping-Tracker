@@ -9,13 +9,19 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("Student");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    const success = login(email, password); // ✅ FIXED
+    setLoading(true);
+
+    const success = await login(email, password);
+
+    setLoading(false);
 
     if (success) {
+      // Navigate based on role
       if (role === "Student") navigate("/student");
       if (role === "Driver") navigate("/driver");
       if (role === "Admin") navigate("/admin");
@@ -62,9 +68,10 @@ export default function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             className="bg-electric text-black py-2 rounded font-bold"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
