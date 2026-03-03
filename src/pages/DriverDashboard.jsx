@@ -2,20 +2,14 @@ import { useState } from "react";
 import { useDemand } from "../context/DemandContext";
 import LiveMap from "../components/LiveMap";
 
-// ✅ ADD THESE TWO IMPORTS
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase";
-
 const DriverDashboard = () => {
-  const { routes, setEvLocation } = useDemand();
+  const { routes, updateLocation } = useDemand();
   const [watchId, setWatchId] = useState(null);
 
-  // Sort routes by highest demand
   const sortedRoutes = Object.entries(routes).sort(
     (a, b) => b[1] - a[1]
   );
 
-  // Ranking colors
   const getColorClass = (index) => {
     if (index === 0) return "bg-red-500";
     if (index === 1) return "bg-orange-500";
@@ -23,7 +17,6 @@ const DriverDashboard = () => {
     return "bg-gray-700";
   };
 
-  // ✅ START LIVE TRACKING (Continuous)
   const handleGoLive = () => {
     if (!navigator.geolocation) {
       alert("Geolocation not supported in this browser");
@@ -31,21 +24,11 @@ const DriverDashboard = () => {
     }
 
     const id = navigator.geolocation.watchPosition(
-      async (position) => {
-        const locationData = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-
-        // ✅ Keep your existing context update
-        setEvLocation(locationData);
-
-        // 🔥 NEW: Save to Firebase (for cross-device sync)
-        try {
-          await setDoc(doc(db, "live", "ev1"), locationData);
-        } catch (err) {
-          console.error("Error updating Firebase:", err);
-        }
+      (position) => {
+        updateLocation(
+          position.coords.latitude,
+          position.coords.longitude
+        );
       },
       (error) => {
         alert("Unable to fetch location");
@@ -54,7 +37,7 @@ const DriverDashboard = () => {
       {
         enableHighAccuracy: true,
         maximumAge: 0,
-        timeout: 5000,
+        timeout: 20000,
       }
     );
 
@@ -62,7 +45,6 @@ const DriverDashboard = () => {
     alert("EV is now live ⚡");
   };
 
-  // ✅ STOP LIVE TRACKING
   const handleStopLive = () => {
     if (watchId !== null) {
       navigator.geolocation.clearWatch(watchId);
@@ -77,7 +59,6 @@ const DriverDashboard = () => {
         Driver Dashboard – Demand Heatmap
       </h1>
 
-      {/* GO LIVE BUTTON */}
       <div className="flex gap-4 mb-6">
         <button
           onClick={handleGoLive}
@@ -94,7 +75,6 @@ const DriverDashboard = () => {
         </button>
       </div>
 
-      {/* DEMAND LIST */}
       <div className="grid gap-4 max-w-2xl">
         {sortedRoutes.length === 0 && (
           <p className="text-gray-400">No demand yet...</p>
@@ -113,7 +93,6 @@ const DriverDashboard = () => {
         ))}
       </div>
 
-      {/* LIVE MAP */}
       <div className="mt-8">
         <LiveMap />
       </div>

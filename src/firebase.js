@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDcAriLLVMa93JfNgUIz8nRxEwI2r8X5Ik",
+  apiKey: "YOUR_API_KEY",
   authDomain: "evtracker-a9333.firebaseapp.com",
   databaseURL: "https://evtracker-a9333-default-rtdb.firebaseio.com",
   projectId: "evtracker-a9333",
