@@ -20,46 +20,32 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  // LOGIN
   const login = async (email, password) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Login successful");
       return true;
     } catch (error) {
-      console.error("LOGIN ERROR:", error.code, error.message);
-      alert(error.message);
+      console.error(error);
       return false;
     }
   };
 
-  // REGISTER
   const register = async (email, password) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Registration successful");
       return true;
     } catch (error) {
-      console.error("REGISTER ERROR:", error.code, error.message);
-      alert(error.message);
+      console.error(error);
       return false;
     }
   };
 
-  // LOGOUT
   const logout = async () => {
     await signOut(auth);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        currentUser,
-        login,
-        register,
-        logout
-      }}
-    >
+    <AuthContext.Provider value={{ currentUser, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
