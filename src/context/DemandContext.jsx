@@ -1,50 +1,55 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { database } from "../firebase";
+import { database, auth } from "../firebase";
 import { ref, set, onValue, update } from "firebase/database";
+import { onAuthStateChanged } from "firebase/auth";
 
 const DemandContext = createContext();
 
 export const DemandProvider = ({ children }) => {
   const [routes, setRoutes] = useState({});
   const [evLocation, setEvLocation] = useState(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
-  // 🔥 Listen for votes (Realtime)
   useEffect(() => {
-    const routesRef = ref(database, "routes");
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthReady(true);
 
-    const unsubscribe = onValue(routesRef, (snapshot) => {
-      const data = snapshot.val();
-      setRoutes(data || {});
-    });
+        // 🔥 Attach listeners AFTER auth
+        const routesRef = ref(database, "routes");
+        const locationRef = ref(database, "evLocation");
 
-    return () => unsubscribe();
-  }, []);
+        onValue(routesRef, (snapshot) => {
+          const data = snapshot.val();
+          setRoutes(data || {});
+        });
 
-  // 🔥 Listen for EV location (Realtime)
-  useEffect(() => {
-    const locationRef = ref(database, "evLocation");
-
-    const unsubscribe = onValue(locationRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setEvLocation(data);
+        onValue(locationRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) setEvLocation(data);
+        });
+      } else {
+        setIsAuthReady(false);
+        setRoutes({});
+        setEvLocation(null);
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
 
-  // 🔥 Vote function (saves to Firebase)
   const voteRoute = (from, to) => {
-    const key = `${from} → ${to}`;
+    if (!isAuthReady) return;
 
+    const key = `${from} → ${to}`;
     update(ref(database, "routes"), {
       [key]: (routes[key] || 0) + 1,
     });
   };
 
-  // 🔥 Update EV location
   const updateLocation = (lat, lng) => {
+    if (!isAuthReady) return;
+
     set(ref(database, "evLocation"), {
       lat,
       lng,
