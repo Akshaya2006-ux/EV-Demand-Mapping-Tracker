@@ -21,7 +21,7 @@ export default function Register() {
     });
   };
 
-  const handleRegister = (e) => {
+ const handleRegister = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -30,7 +30,7 @@ export default function Register() {
     }
 
     // ✅ FIX: Pass email and password properly
-    const success = register(formData.email, formData.password);
+ const success = await register(formData.email, formData.password);
 
     if (!success) {
       alert("User already exists");

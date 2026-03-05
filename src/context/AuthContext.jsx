@@ -32,15 +32,24 @@ export function AuthProvider({ children }) {
 }
   };
 
-  const register = async (email, password) => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  };
+ const register = async (email, password) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    console.log("REGISTER SUCCESS:", userCredential.user);
+    alert("Registration successful");
+
+    return true;
+  } catch (error) {
+    console.error("REGISTER ERROR:", error.code, error.message);
+    alert(error.message);
+    return false;
+  }
+};
 
   const logout = async () => {
     await signOut(auth);
