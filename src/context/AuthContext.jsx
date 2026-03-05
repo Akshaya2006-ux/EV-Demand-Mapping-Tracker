@@ -24,10 +24,12 @@ export function AuthProvider({ children }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
+    }catch (error) {
+  console.log(error.code);
+  console.log(error.message);
+  alert(error.code);
+  return false;
+}
   };
 
   const register = async (email, password) => {
