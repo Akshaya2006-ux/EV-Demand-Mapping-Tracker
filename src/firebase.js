@@ -9,7 +9,7 @@ const firebaseConfig = {
   authDomain: "evtracker-a9333.firebaseapp.com",
   databaseURL: "https://evtracker-a9333-default-rtdb.firebaseio.com",
   projectId: "evtracker-a9333",
-  storageBucket: "evtracker-a9333.firebasestorage.app",
+  storageBucket: "evtracker-a9333.appspot.com",
   messagingSenderId: "305865479618",
   appId: "1:305865479618:web:75dfbbfa308b610fe3725b",
   measurementId: "G-0M65ZCZ260"
