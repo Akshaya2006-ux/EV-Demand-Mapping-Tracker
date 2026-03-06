@@ -24,8 +24,10 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "firebase": "^12.10.0",
     "leaflet": "^1.9.4",
+    "nodemailer": "^8.0.1",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.13.1"
   }
