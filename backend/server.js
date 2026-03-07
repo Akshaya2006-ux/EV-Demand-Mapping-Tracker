@@ -9,18 +9,18 @@ app.use(express.json());
 
 // Gmail transporter
 const transporter = nodemailer.createTransport({
-   host: "smtp.gmail.com",
+  host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
     user: "akshayakrishnamohan@gmail.com",
     pass: "myjyidpwzjfknobi"
   },
-    tls: {
-    rejectUnauthorized: false
-  }
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+  family: 4
 });
-
 // Test route
 app.get("/", (req, res) => {
   res.send("EV Backend Running 🚀");
