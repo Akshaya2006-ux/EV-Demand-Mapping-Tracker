@@ -42,43 +42,42 @@ useEffect(() => {
 
   const seats = Array.from({ length: totalSeats }, (_, i) => i + 1);
 
-  const handleVote = async () => {
+const handleVote = async () => {
 
-    if (!current || !destination) {
-      alert("Please select both locations");
-      return;
-    }
+  if (!current || !destination) {
+    alert("Please select both locations");
+    return;
+  }
 
-    if (current === destination) {
-      alert("Source and destination cannot be same");
-      return;
-    }
+  if (current === destination) {
+    alert("Source and destination cannot be same");
+    return;
+  }
 
-    voteRoute(current, destination);
+  voteRoute(current, destination);
 
-    try {
+  try {
 
-      await fetch("http://localhost:5000/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          route: `${current} → ${destination}`
-        })
-      });
+    await fetch("https://ev-demand-mapping-tracker-1.onrender.com/send-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        route: `${current} → ${destination}`
+      })
+    });
 
-    } catch (error) {
-      console.error("Email error:", error);
-    }
+  } catch (error) {
+    console.error("Email error:", error);
+  }
 
-    setCurrent("");
-    setDestination("");
+  setCurrent("");
+  setDestination("");
 
-    alert("Vote submitted successfully ⚡");
+  alert("Vote submitted successfully ⚡");
 
-  };
-
+};
   return (
 
     <div className="min-h-screen bg-charcoal text-white flex items-center justify-center p-6">
