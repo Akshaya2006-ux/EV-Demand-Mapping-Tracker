@@ -3,7 +3,7 @@ import { useDemand } from "../context/DemandContext";
 import LiveMap from "../components/LiveMap";
 
 const DriverDashboard = () => {
-  const { routes, updateLocation } = useDemand();
+  const { routes, updateLocation, clearRouteVotes } = useDemand(); // added clearRouteVotes
   const [watchId, setWatchId] = useState(null);
 
   const sortedRoutes = Object.entries(routes).sort(
@@ -53,6 +53,12 @@ const DriverDashboard = () => {
     }
   };
 
+  // NEW: driver cancels route votes
+  const handleCancelRoute = (route) => {
+    clearRouteVotes(route);
+    alert("Route picked up. Votes cleared.");
+  };
+
   return (
     <div className="min-h-screen bg-charcoal text-white p-8">
       <h1 className="text-2xl font-bold mb-6 text-electric">
@@ -87,8 +93,18 @@ const DriverDashboard = () => {
               index
             )}`}
           >
-            <span className="font-medium">{route}</span>
-            <span className="text-lg font-bold">{count} votes</span>
+            <div>
+              <span className="font-medium">{route}</span>
+              <div className="text-sm">{count} votes</div>
+            </div>
+
+            {/* NEW Pickup Button */}
+            <button
+              onClick={() => handleCancelRoute(route)}
+              className="bg-black text-white px-3 py-1 rounded-lg hover:opacity-80"
+            >
+              Pickup
+            </button>
           </div>
         ))}
       </div>
