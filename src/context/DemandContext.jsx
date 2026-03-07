@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { database, auth } from "../firebase";
-import { ref, set, onValue, update } from "firebase/database";
+import { ref, set, onValue, update, remove } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 
 const DemandContext = createContext();
@@ -15,7 +15,7 @@ export const DemandProvider = ({ children }) => {
       if (user) {
         setIsAuthReady(true);
 
-        // 🔥 Attach listeners AFTER auth
+        // Attach listeners AFTER auth
         const routesRef = ref(database, "routes");
         const locationRef = ref(database, "evLocation");
 
@@ -28,6 +28,7 @@ export const DemandProvider = ({ children }) => {
           const data = snapshot.val();
           if (data) setEvLocation(data);
         });
+
       } else {
         setIsAuthReady(false);
         setRoutes({});
@@ -38,15 +39,18 @@ export const DemandProvider = ({ children }) => {
     return () => unsubscribeAuth();
   }, []);
 
+  // Student voting
   const voteRoute = (from, to) => {
     if (!isAuthReady) return;
 
     const key = `${from} → ${to}`;
+
     update(ref(database, "routes"), {
       [key]: (routes[key] || 0) + 1,
     });
   };
 
+  // Driver live location update
   const updateLocation = (lat, lng) => {
     if (!isAuthReady) return;
 
@@ -56,6 +60,13 @@ export const DemandProvider = ({ children }) => {
     });
   };
 
+  // 🚐 NEW: Driver clears votes after picking route
+  const clearRouteVotes = (route) => {
+    if (!isAuthReady) return;
+
+    remove(ref(database, `routes/${route}`));
+  };
+
   return (
     <DemandContext.Provider
       value={{
@@ -63,6 +74,7 @@ export const DemandProvider = ({ children }) => {
         voteRoute,
         evLocation,
         updateLocation,
+        clearRouteVotes, // exported here
       }}
     >
       {children}
