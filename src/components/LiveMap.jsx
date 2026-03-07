@@ -11,7 +11,7 @@ const icon = new L.Icon({
 const LiveMap = () => {
   const { evLocation } = useDemand();
 
-  const campusCenter = [13.0109, 80.2337];
+  const campusCenter = [13.01164, 80.23606];
 
   const campusBounds = [
     [13.0050, 80.2280],
